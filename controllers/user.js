@@ -56,7 +56,10 @@ export const login = (req, res) => {
       // }
       )
       .status(200)
-      .json(other);
+      .json({
+        ...other,
+        access_token: token,
+      });
   });
 };
 

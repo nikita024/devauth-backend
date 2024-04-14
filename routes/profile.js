@@ -3,17 +3,30 @@ import {
     getAllProfiles, 
     getProfile,
     addProfile, 
-    updateProfile 
+    updateProfile,
+    
     // deleteProfile, 
 } from "../controllers/profile.js";
 import verifyToken from "../middleware/verifyToken.js";
+import multer from "multer";
+
+// Multer configuration for file uploads
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function(req, file, cb) {
+    cb(null, file.originalname);
+  }
+});
+const upload = multer({ storage: storage });
 
 const router = express.Router();
 
 router.get("/", getAllProfiles);
 router.get("/:id", getProfile);
-router.post("/", verifyToken, addProfile);
-router.put("/:id", verifyToken, updateProfile);
+router.post("/", verifyToken, upload.single("profile_pic"), addProfile);
+router.put("/:id", verifyToken, upload.single("profile_pic"), updateProfile);
 // router.delete("/:id", deleteProfile);
 
 export default router;
