@@ -54,7 +54,8 @@ export const updateProfile = (req, res) => {
         if (err) return res.status(500).json(err);
         return res.json("Profile has been updated.");
     });
-};
+}
+
 
 
 
