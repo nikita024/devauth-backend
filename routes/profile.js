@@ -27,6 +27,6 @@ router.get("/", getAllProfiles);
 router.get("/:id", getProfile);
 router.post("/", verifyToken, upload.single("profile_pic"), addProfile);
 router.put("/:id", verifyToken, upload.single("profile_pic"), updateProfile);
-// router.delete("/:id", deleteProfile);
+
 
 export default router;

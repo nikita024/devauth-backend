@@ -38,7 +38,7 @@ export const addProfile = (req, res) => {
 export const updateProfile = (req, res) => {
     const userId = req.userId;
     const profileId = req.params.id;
-    const { phone, dob, city, about } = req.body;
+    const {email, phone, dob, city, about } = req.body;
     let profile_pic = null;
 
     // Check if profile_pic is included in the form data
@@ -46,15 +46,16 @@ export const updateProfile = (req, res) => {
         profile_pic = req.file.filename;
     }
 
-    const q = "UPDATE profiles SET `phone`=?, `dob`=?, `city`=?, `about`=?, `profile_pic`=? WHERE `id` = ? AND `uid` = ?";
+    const q = "UPDATE profiles p JOIN users u ON p.uid = u.id SET u.email=?, p.phone=?, p.dob=?, p.city=?, p.about=?, p.profile_pic=? WHERE p.id = ? AND p.uid = ?";
 
-    const values = [phone, dob, city, about, profile_pic, profileId, userId];
+    const values = [email, phone, dob, city, about, profile_pic, profileId, userId];
 
     db.query(q, values, (err, data) => {
         if (err) return res.status(500).json(err);
         return res.json("Profile has been updated.");
     });
 }
+
 
 
 
