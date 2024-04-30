@@ -10,8 +10,9 @@ const verifyToken = (req, res, next) => {
             });
         }
 
-        jwt.verify(token, "jwtkey", (err, decoded) => {
+         jwt.verify(token, "jwtkey", (err, decoded) => {
             if (err) {
+                // localStorage.removeItem('user');
                 return res.status(401).json({
                     status: false,
                     message: "Failed to authenticate token"

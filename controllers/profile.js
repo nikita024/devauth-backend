@@ -22,7 +22,7 @@ export const getProfile = (req, res) => {
 export const addProfile = (req, res) => {
     const userId = req.userId;
     const { phone, dob, city, about } = req.body;
-    const profile_pic = req.file ? req.file.filename : null; // Handle profile picture upload
+    const profile_pic = req.file ? req.file.filename : null;
 
     const q =
     "INSERT INTO profiles(`phone`, `dob`, `city`, `about`, `profile_pic`, `uid`) VALUES (?, ?, ?, ?, ?, ?)";
@@ -31,14 +31,23 @@ export const addProfile = (req, res) => {
 
     db.query(q, values, (err, data) => {
         if (err) return res.status(500).json(err);
-        return res.json("Profile has been created.");
+        const profileId = data.insertId;
+        const fetchQuery = "SELECT * FROM profiles WHERE id = ?";
+        db.query(fetchQuery, [profileId], (fetchErr, fetchData) => {
+            if (fetchErr) return res.status(500).json(fetchErr);
+            const createdProfile = fetchData[0];
+            return res.json({
+                data: createdProfile,
+                message: "Profile has been created.",
+            });
+        });
     });
 };
 
 export const updateProfile = (req, res) => {
     const userId = req.userId;
     const profileId = req.params.id;
-    const {email, phone, dob, city, about } = req.body;
+    const { email, phone, dob, city, about } = req.body;
     let profile_pic = null;
 
     // Check if profile_pic is included in the form data
@@ -50,11 +59,36 @@ export const updateProfile = (req, res) => {
 
     const values = [email, phone, dob, city, about, profile_pic, profileId, userId];
 
-    db.query(q, values, (err, data) => {
+    const checkEmailQuery = "SELECT * FROM users WHERE email = ?";
+    db.query(checkEmailQuery, [email], (err, emailData) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      const emailRegex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
+     if (!emailRegex.test(email)) {
+        return res.status(400).json("Invalid email address!");
+      }
+      if (emailData.length > 0 && emailData[0].id !== userId) {
+        return res.status(400).json("Email already exists!");
+      }
+   
+   
+      db.query(q, values, (err, data) => {
         if (err) return res.status(500).json(err);
-        return res.json("Profile has been updated.");
+
+       // Fetch the updated profile
+        const fetchQuery = "SELECT * FROM profiles WHERE id = ?";
+        db.query(fetchQuery, [profileId], (fetchErr, fetchData) => {
+            if (fetchErr) return res.status(500).json(fetchErr);
+            const updatedProfile = fetchData[0];
+            return res.json({
+                data: updatedProfile,
+                message: "Profile has been updated.",
+            });
+        });
     });
 }
+
 
 
 
@@ -109,4 +143,4 @@ export const updateProfile = (req, res) => {
 //         return res.json("Profile has been deleted!");
 //       });
 //     });
-//   };
+)}

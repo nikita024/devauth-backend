@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import userRoutes from './routes/user.js';
 import profileRoutes from './routes/profile.js';
+import adminRoutes from './routes/admin.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
@@ -26,6 +27,7 @@ app.use('/uploads', express.static(join(__dirname, 'uploads')));
 
 app.use("/api/users", userRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/admin/users", adminRoutes);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
