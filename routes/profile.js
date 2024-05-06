@@ -4,13 +4,10 @@ import {
     getProfile,
     addProfile, 
     updateProfile,
-    
-    // deleteProfile, 
 } from "../controllers/profile.js";
 import verifyToken from "../middleware/verifyToken.js";
 import multer from "multer";
 
-// Multer configuration for file uploads
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
     cb(null, 'uploads/');

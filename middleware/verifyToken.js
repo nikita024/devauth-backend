@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 
 const verifyToken = (req, res, next) => {
     try {
-        const token = req.headers['x-auth-token'];
+        const token = req.cookies.token; 
         if (!token) {
             return res.status(401).json({
                 status: false,
@@ -10,9 +10,9 @@ const verifyToken = (req, res, next) => {
             });
         }
 
-         jwt.verify(token, "jwtkey", (err, decoded) => {
+        jwt.verify(token, process.env.JWT_KEY, (err, decoded) => {
             if (err) {
-                // localStorage.removeItem('user');
+                res.clearCookie("token");
                 return res.status(401).json({
                     status: false,
                     message: "Failed to authenticate token"

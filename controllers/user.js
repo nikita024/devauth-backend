@@ -75,17 +75,42 @@ export const login = (req, res) => {
     if (!isPasswordCorrect)
       return res.status(400).json("Wrong username or password!");
 
-    const token = jwt.sign({ id: data[0].id }, "jwtkey", {
+    const token = jwt.sign({ id: data[0].id }, process.env.JWT_KEY, {
       expiresIn: "1d",
     });
     const { password, ...other } = data[0];
 
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 24 * 60 * 60 * 1000,
+      path: "/",
+      sameSite: "none",
+    })
+
     res.status(200).json({
       message : "Login successful",
       ...other,
-      token
     })
   });
+}
+
+export const logout = (req, res) => {
+  res.clearCookie("token");
+  return res.status(200).json("Logged out successfully!");
+}
+
+export const validateToken = (req, res) => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res.status(401).json("Unauthorized");
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_KEY);
+    return res.status(200).json(decoded);
+  } catch (error) {
+    return res.status(401).json("Invalid token");
+  }
 }
 
 export const getAllUsers = (req, res) => {
@@ -97,55 +122,3 @@ export const getAllUsers = (req, res) => {
 }
 
 
-export const updateUserEmail = (req, res) => {
-  const userId = req.params.userId;
-  const newEmail = req.body.newEmail;
-
-  // Check if userId and newEmail are provided
-  if (!userId) {
-    return res.status(400).json("User ID is required!");
-  }
-  if (!newEmail) {
-    return res.status(400).json("New email is required!");
-  }
-
-  // Validate the new email format
-  const emailRegex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
-  if (!emailRegex.test(newEmail)) {
-    return res.status(400).json("Invalid email address!");
-  }
-
-  // Check if the user with the given ID exists
-  const getUserQuery = "SELECT * FROM users WHERE id = ?";
-  db.query(getUserQuery, [userId], (err, userData) => {
-    if (err) {
-      return res.status(500).json(err);
-    }
-    if (userData.length === 0) {
-      return res.status(404).json("User not found!");
-    }
-
-    // Check if the new email already exists in the users table
-    const checkEmailQuery = "SELECT * FROM users WHERE email = ?";
-    db.query(checkEmailQuery, [newEmail], (err, emailData) => {
-      if (err) {
-        return res.status(500).json(err);
-      }
-      if (emailData.length > 0) {
-        return res.status(400).json("Email already exists!");
-      }
-
-      // Update the user's email
-      const updateEmailQuery = "UPDATE users SET email = ? WHERE id = ?";
-      db.query(updateEmailQuery, [newEmail, userId], (err, result) => {
-        if (err) {
-          return res.status(500).json(err);
-        }
-        if (result.affectedRows === 0) {
-          return res.status(500).json("Failed to update email!");
-        }
-        return res.status(200).json("Email updated successfully!");
-      });
-    });
-  });
-};

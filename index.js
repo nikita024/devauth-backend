@@ -7,10 +7,12 @@ import adminRoutes from './routes/admin.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
+import dotenv from 'dotenv';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+dotenv.config();
 const app = express();
 const port = 8080;
 app.use(bodyParser.urlencoded({ extended: true }));
