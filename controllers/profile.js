@@ -29,6 +29,26 @@ export const addProfile = (req, res) => {
 
     const values = [phone, dob, city, about, profile_pic, userId];
 
+    if (!phone) {
+        return res.status(400).json({ error: "Phone number is required!" });
+    }
+
+    if (!dob) {
+        return res.status(400).json({ error: "Date of birth is required!" });
+    }
+
+
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(phone)) {
+        return res.status(400).json({ error: "Invalid phone number format!" });
+    }
+   
+    const currentDate = new Date();
+    const dobDate = new Date(dob);
+    if (dobDate > currentDate) {
+        return res.status(400).json({ error: "Date of birth cannot be in the future!" });
+    }
+
     db.query(q, values, (err, data) => {
         if (err) return res.status(500).json(err);
         const profileId = data.insertId;
@@ -58,6 +78,25 @@ export const updateProfile = (req, res) => {
 
     const values = [email, phone, dob, city, about, profile_pic, profileId, userId];
 
+    if (!phone) {
+        return res.status(400).json({ error: "Phone number is required!" });
+    }
+
+    if (!dob) {
+        return res.status(400).json({ error: "Date of birth is required!" });
+    }
+    
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(phone)) {
+        return res.status(400).json({ error: "Invalid phone number format!" });
+    }
+   
+    const currentDate = new Date();
+    const dobDate = new Date(dob);
+    if (dobDate > currentDate) {
+        return res.status(400).json({ error: "Date of birth cannot be in the future!" });
+    }
+
     const checkEmailQuery = "SELECT * FROM users WHERE email = ?";
     db.query(checkEmailQuery, [email], (err, emailData) => {
       if (err) {
@@ -85,6 +124,6 @@ export const updateProfile = (req, res) => {
             });
         });
     });
-}
+});
 
-)};
+};

@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 export const register = (req, res) => {
-  const q = "SELECT * FROM users WHERE email = ? OR username = ?";
+  const q = "SELECT * FROM users WHERE email = ? ";
 
   if (!req.body.username) {
     return res.status(400).json("Username is required!");
