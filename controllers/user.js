@@ -1,6 +1,8 @@
 import db from "../db.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import atob from 'atob';
+import { decodeBase65 } from "../utils/index.js";
 
 export const register = (req, res) => {
   const q = "SELECT * FROM users WHERE email = ? ";
@@ -32,7 +34,7 @@ export const register = (req, res) => {
     if (err) return res.status(500).json(err);
     if (data.length) return res.status(409).json("User already exists!");
 
-    //Hash the password and create a user
+    
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(req.body.password, salt);
 
@@ -66,9 +68,12 @@ export const login = (req, res) => {
   db.query(q, [req.body.email], (err, data) => {
     if (err) return res.status(500).json(err);
     if (data.length === 0) return res.status(404).json("User not found!");
+  
+    // const decodedPassword = atob(req.body.password); // base64 decoding for password
+    const decodedPassword = decodeBase65(req.body.password); // base65 decoding for password
 
     const isPasswordCorrect = bcrypt.compareSync(
-      req.body.password,
+      decodedPassword,
       data[0].password
     );
 
