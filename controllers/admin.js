@@ -37,11 +37,11 @@ export const updateUser = (req, res) => {
         if (emailData.length > 0 && emailData[0].id !== userId) {
           return res.status(400).json("Email already exists!");
         }
-        // Update the user's email, username, and is_admin
+        
         updateUserFields();
       });
     } else {
-      // Update the user's username and is_admin without checking email
+    
       updateUserFields();
     }
   });
